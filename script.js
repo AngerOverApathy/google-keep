@@ -9,7 +9,7 @@ class App {
 
    addEventListeners() {   //add method to app class
       document.body.addEventListener('click', event => {
-        this.handleFormClick(event);
+        this.handleFormClick(event); //when using a class, use "this" to reference every method being called 
       });
    }
 
@@ -17,9 +17,9 @@ class App {
     const isFormClicked = this.$form.contains(event.target) //contains will return a boolean
 
     if (isFormClicked) {
-
+        this.openForm()
     } else {
-
+        this.closeForm()
     }
    }
 
@@ -27,7 +27,13 @@ class App {
     this.$form.classList.add('form-open')
     this.$noteTitle.style.display = 'block'
     this.$formButtons.style.display = 'block'
-    
+
+   }
+
+   closeForm() {
+    this.$form.classList.remove('form-open')
+    this.$noteTitle.style.display = 'none'
+    this.$formButtons.style.display = 'none'
    }
 }
 
