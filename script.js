@@ -15,6 +15,7 @@ class App {
       this.$modal = document.querySelector(".modal");
       this.$modalTitle = document.querySelector(".modal-title");
       this.$modalText = document.querySelector(".modal-text");
+      this.$modalCloseButton = document.querySelector('.modal-close-button');
   
       this.addEventListeners();
     }
@@ -23,7 +24,7 @@ class App {
       document.body.addEventListener("click", event => {
         this.handleFormClick(event); //when using a class, use "this" to reference every method being called 
         this.selectNote(event)
-        this.openModal(); //receive event
+        this.openModal(event); //receive event
       });
   
       this.$form.addEventListener("submit", event => {
@@ -40,6 +41,10 @@ class App {
       this.$formCloseButton.addEventListener('click', event => {
         event.stopPropagation(); //prevents event from propagating/bubbling up to handler for document body
         this.closeForm();
+      })
+
+      this.$modalCloseButton.addEventListener('click', event => {
+        this.closeModal(event);  
       })
     }
   
@@ -80,6 +85,11 @@ class App {
             this.$modalText.value = this.text;
         }
     }
+
+    closeModal(event) {
+        this.editNote()
+        this.$modal.classList.toggle('open-modal') //toggle off
+    }
   
     addNote({ title, text }) { //obj destructure, originally passed in 'note'
       const newNote = {
@@ -91,6 +101,15 @@ class App {
       this.notes = [...this.notes, newNote]; //spread operator to make immutable array
       this.displayNotes() //display notes
       this.closeForm();
+    }
+
+    editNote() {
+        const title = this.$modalTitle.value;
+        const text = this.$modalText.value;
+        this.notes = this.notes.map(note =>        //iterate through array of objects and update
+            note.id === Number(this.id) ? { ...note, title, text } : note //if note id matches this.id update note, title, text, otherwise return note
+        )
+        this.displayNotes();
     }
 
     selectNote(event) {
@@ -107,9 +126,9 @@ class App {
         const hasNotes = this.notes.length > 0;
         this.$placeholder.style.display = hasNotes ? 'none' : 'flex' //if notes display notes, else display placeholder
     
-        //display content by iterating over notes display
+        //display content by iterating over notes display //data property allows us to store data in html
         this.$notes.innerHTML = this.notes.map(note => `     
-        <div style="background: ${note.color};" class="note" data-id="${note.id}"> //data property allows us to store data in html
+        <div style="background: ${note.color};" class="note" data-id="${note.id}"> 
             <div class="${note.title && 'note-title'}">${note.title}</div>
             <div class="note-text">${note.text}</div>
             <div class="toolbar-container">
