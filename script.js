@@ -8,6 +8,7 @@ class App {
       this.$noteTitle = document.querySelector("#note-title");
       this.$noteText = document.querySelector("#note-text");
       this.$formButtons = document.querySelector("#form-buttons");
+      this.$formCloseButton = document.querySelector('#form-close-button')
   
       this.addEventListeners();
     }
@@ -27,13 +28,24 @@ class App {
           this.addNote({ title, text }); //object shorthand {title: title, text: text}
         }
       });
+
+      this.$formCloseButton.addEventListener('click', event => {
+        event.stopPropagation(); //prevents event from propagating/bubbling up to handler for document body
+        this.closeForm();
+      })
     }
   
     handleFormClick(event) {
       const isFormClicked = this.$form.contains(event.target);  //contains will return a boolean
   
+      const title = this.$noteTitle.value;
+      const text = this.$noteText.value;
+      const hasNote = title || text;
+
       if (isFormClicked) {
         this.openForm();
+      } else if (hasNote) {
+        this.addNote({ title, text })
       } else {
         this.closeForm();
       }
@@ -49,17 +61,20 @@ class App {
       this.$form.classList.remove("form-open");
       this.$noteTitle.style.display = "none";
       this.$formButtons.style.display = "none";
+      this.$noteTitle.value = ''; //clears out input
+      this.$noteText.value = ''; //clears out input
     }
   
-    addNote(note) {
+    addNote({ title, text }) { //obj destructure, originally passed in 'note'
       const newNote = {
-        title: note.title,
-        text: note.text,
+        title, //obj shorthand, as opposed to note.title
+        text,
         color: "white",
         id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id + 1 : 1 //if the length of notes array is > 0, add +1 to length of array, get id property, add 1 to increment id property
       };
       this.notes = [...this.notes, newNote]; //spread operator to make immutable array
       this.displayNotes() //display notes
+      this.closeForm();
     }
 
     displayNotes() {
@@ -79,7 +94,7 @@ class App {
             </div>
           </div>
         </div>
-        `);
+        `).join(""); //.join removes commas between arrays
     }
   }
   
