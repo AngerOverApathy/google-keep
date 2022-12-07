@@ -1,6 +1,9 @@
 class App {
     constructor() {
       this.notes = []; //hold notes
+      this.title = '';
+      this.text = '';
+      this.id = '';
   
       this.$placeholder = document.querySelector('#placeholder')
       this.$form = document.querySelector("#form"); //$ added to recognize we are working with an html element
@@ -9,6 +12,9 @@ class App {
       this.$noteText = document.querySelector("#note-text");
       this.$formButtons = document.querySelector("#form-buttons");
       this.$formCloseButton = document.querySelector('#form-close-button')
+      this.$modal = document.querySelector(".modal");
+      this.$modalTitle = document.querySelector(".modal-title");
+      this.$modalText = document.querySelector(".modal-text");
   
       this.addEventListeners();
     }
@@ -16,6 +22,8 @@ class App {
     addEventListeners() {  //add method to app class
       document.body.addEventListener("click", event => {
         this.handleFormClick(event); //when using a class, use "this" to reference every method being called 
+        this.selectNote(event)
+        this.openModal(); //receive event
       });
   
       this.$form.addEventListener("submit", event => {
@@ -64,6 +72,14 @@ class App {
       this.$noteTitle.value = ''; //clears out input
       this.$noteText.value = ''; //clears out input
     }
+
+    openModal(event) {
+        if (event.target.closest('.note')) { //if user clicks close to note, open note
+            this.$modal.classList.toggle('open-modal') //toggle css property
+            this.$modalTitle.value = this.title;
+            this.$modalText.value = this.text;
+        }
+    }
   
     addNote({ title, text }) { //obj destructure, originally passed in 'note'
       const newNote = {
@@ -77,6 +93,15 @@ class App {
       this.closeForm();
     }
 
+    selectNote(event) {
+        const $selectedNote = event.target.closest('.note'); //returns closest element to note class
+        if (!$selectedNote) return; //prevent 'children undefined' err due to unselected note
+        const [$noteTitle, $noteText] = $selectedNote.children; //array destructuring to get individual values
+        this.title = $noteTitle.innerText;
+        this.text = $noteText.innerText;
+        this.id = $selectedNote.dataset.id; //refers to data property in div
+    }
+
     displayNotes() {
         //hide placeholder if notes exist
         const hasNotes = this.notes.length > 0;
@@ -84,7 +109,7 @@ class App {
     
         //display content by iterating over notes display
         this.$notes.innerHTML = this.notes.map(note => `     
-        <div style="background: ${note.color};" class="note">
+        <div style="background: ${note.color};" class="note" data-id="${note.id}"> //data property allows us to store data in html
             <div class="${note.title && 'note-title'}">${note.title}</div>
             <div class="note-text">${note.text}</div>
             <div class="toolbar-container">
