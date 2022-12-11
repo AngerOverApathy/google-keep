@@ -31,6 +31,25 @@ class App {
       document.body.addEventListener('mouseover', event => {
         this.openToolTip(event) //change note color with hover
       })
+
+      document.body.addEventListener('mouseout', event => {
+        this.closeToolTip(event);  
+     });
+
+      this.$colorTooltip.addEventListener('mouseover', function() { //not using arrow function so we can use 'this'
+        this.style.display = 'flex'
+        })
+        
+      this.$colorTooltip.addEventListener('mouseout', function() {
+        this.style.display = 'none'
+        })
+
+      this.$colorTooltip.addEventListener('click', event => {
+        const color = event.target.dataset.color;
+        if (color) {
+            this.editNoteColor()
+        }
+        })
   
       this.$form.addEventListener("submit", event => {
         event.preventDefault(); //prevent form refresh
@@ -98,12 +117,17 @@ class App {
 
     openToolTip(event) { //change note color
         if (!event.target.matches('.toolbar-color')) return; 
-        this.id = event.target.nextElementSibling.dataset.id //grab note id from note div
+        this.id = event.target.dataset.id //grab note id from note div
         const noteCoords = event.target.getBoundingClientRect() //gives specific hover coordinate info
-        const horizontal = noteCoords.left + window.scrollX //how much user has scrolled down page
-        const vertical = noteCoords.top + window.scrollY;
+        const horizontal = noteCoords.left + window.scrollX; //how much user has scrolled down page
+        const vertical = noteCoords.top + window.scrollY - 20;
         this.$colorTooltip.style.transform = `translate(${horizontal}px, ${vertical}px)`;;
         this.$colorTooltip.style.display = 'flex';
+    }
+
+    closeToolTip(event) {
+        if (!event.target.matches('.toolbar-color')) return;
+        this.$colorTooltip.style.display = 'none';  
     }
   
     addNote({ title, text }) { //obj destructure, originally passed in 'note'
@@ -123,6 +147,13 @@ class App {
         const text = this.$modalText.value;
         this.notes = this.notes.map(note =>        //iterate through array of objects and update
             note.id === Number(this.id) ? { ...note, title, text } : note //if note id matches this.id update note, title, text, otherwise return note
+        )
+        this.displayNotes();
+    }
+
+    editNoteColor(color) {
+        this.notes = this.notes.map(note =>        //iterate through array of objects and update
+            note.id === Number(this.id) ? { ...note, color } : note //if note id matches this.id update note, title, text, otherwise return note
         )
         this.displayNotes();
     }
@@ -148,7 +179,7 @@ class App {
             <div class="note-text">${note.text}</div>
             <div class="toolbar-container">
             <div class="toolbar">
-              <img class="toolbar-color" src="https://icon.now.sh/palette">
+              <img class="toolbar-color" data-id=${note.id} src="https://icon.now.sh/palette">
               <img class="toolbar-delete" src="https://icon.now.sh/delete">
             </div>
           </div>
