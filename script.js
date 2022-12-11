@@ -1,6 +1,6 @@
 class App {
     constructor() {
-      this.notes = []; //hold notes
+      this.notes = JSON.parse(localStorage.getItem('notes')) || []; //hold notes
       this.title = '';
       this.text = '';
       this.id = '';
@@ -17,7 +17,8 @@ class App {
       this.$modalText = document.querySelector(".modal-text");
       this.$modalCloseButton = document.querySelector('.modal-close-button');
       this.$colorTooltip = document.querySelector('#color-tooltip');
-  
+        
+      this.render()
       this.addEventListeners();
     }
   
@@ -141,7 +142,7 @@ class App {
         id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id + 1 : 1 //if the length of notes array is > 0, add +1 to length of array, get id property, add 1 to increment id property
       };
       this.notes = [...this.notes, newNote]; //spread operator to make immutable array
-      this.displayNotes() //display notes
+      this.render() //display notes
       this.closeForm();
     }
 
@@ -151,14 +152,14 @@ class App {
         this.notes = this.notes.map(note =>        //iterate through array of objects and update
             note.id === Number(this.id) ? { ...note, title, text } : note //if note id matches this.id update note, title, text, otherwise return note
         )
-        this.displayNotes();
+        this.render();
     }
 
     editNoteColor(color) {
         this.notes = this.notes.map(note =>        //iterate through array of objects and update
             note.id === Number(this.id) ? { ...note, color } : note //if note id matches this.id update note, title, text, otherwise return note
         )
-        this.displayNotes();
+        this.render();
     }
 
     selectNote(event) {
@@ -175,7 +176,16 @@ class App {
         if (!event.target.matches('toolbar-delete')) return;
         const id = event.target.dataset.id;
         this.notes.filter(note => note.id !== Number(id)); //grab all notes with ids not equal to one being viewed
+        this.render()
+    }
+
+    render() {
+        this.saveNotes();
         this.displayNotes();
+    }
+
+    saveNotes() {
+        localStorage.setItem('notes', JSON.stringify(this.notes))
     }
 
     displayNotes() {
