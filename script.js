@@ -26,6 +26,7 @@ class App {
         this.handleFormClick(event); //when using a class, use "this" to reference every method being called 
         this.selectNote(event)
         this.openModal(event); //receive event
+        this.deleteNote(event)
       });
 
       document.body.addEventListener('mouseover', event => {
@@ -103,6 +104,8 @@ class App {
     }
 
     openModal(event) {
+        if (event.target.matches('.toolbar-delete')) return; //if event matches toolbar delete element don't open modal
+
         if (event.target.closest('.note')) { //if user clicks close to note, open note
             this.$modal.classList.toggle('open-modal') //toggle css property
             this.$modalTitle.value = this.title;
@@ -167,6 +170,14 @@ class App {
         this.id = $selectedNote.dataset.id; //refers to data property in div
     }
 
+    deleteNote(event) {
+        event.stopPropagation() //prevent bubbling
+        if (!event.target.matches('toolbar-delete')) return;
+        const id = event.target.dataset.id;
+        this.notes.filter(note => note.id !== Number(id)); //grab all notes with ids not equal to one being viewed
+        this.displayNotes();
+    }
+
     displayNotes() {
         //hide placeholder if notes exist
         const hasNotes = this.notes.length > 0;
@@ -180,7 +191,7 @@ class App {
             <div class="toolbar-container">
             <div class="toolbar">
               <img class="toolbar-color" data-id=${note.id} src="https://icon.now.sh/palette">
-              <img class="toolbar-delete" src="https://icon.now.sh/delete">
+              <img class="toolbar-delete" data-id=${note.id} src="https://icon.now.sh/delete">
             </div>
           </div>
         </div>
